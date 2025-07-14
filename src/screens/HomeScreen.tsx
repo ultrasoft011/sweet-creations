@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { StyleSheet, FlatList, View, TextInput, Alert } from 'react-native';
+import { StyleSheet, FlatList, View, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/src/components/common/ThemedText';
 import { ThemedView } from '@/src/components/common/ThemedView';
 import { StoreCard } from '@/src/components/store/StoreCard';
 import { CategoryFilter } from '@/src/components/store/CategoryFilter';
+import StoreDetailScreen from '@/src/screens/StoreDetailScreen';
 import { mockStores, storeCategories } from '@/src/data/mockStores';
 import { Store } from '@/src/types/store';
 import { SPACING, FONT_SIZES } from '@/src/constants/Styles';
@@ -13,6 +14,7 @@ import { SPACING, FONT_SIZES } from '@/src/constants/Styles';
 export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState('1'); // '1' es "Todas"
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
 
   // Filtrar tiendas por categoría y búsqueda
   const filteredStores = useMemo(() => {
@@ -43,16 +45,26 @@ export default function HomeScreen() {
   }, [selectedCategory, searchQuery]);
 
   const handleStorePress = (store: Store) => {
-    Alert.alert(
-      store.name,
-      `¡Pronto podrás ver el menú de ${store.name}!`,
-      [{ text: 'OK' }]
-    );
+    setSelectedStore(store);
+  };
+
+  const handleBackFromDetail = () => {
+    setSelectedStore(null);
   };
 
   const renderStoreItem = ({ item }: { item: Store }) => (
     <StoreCard store={item} onPress={handleStorePress} />
   );
+
+  // Si hay una tienda seleccionada, mostrar la pantalla de detalle
+  if (selectedStore) {
+    return (
+      <StoreDetailScreen 
+        store={selectedStore} 
+        onBack={handleBackFromDetail} 
+      />
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
